@@ -1,0 +1,29 @@
+version: '2.3'
+
+x-volumes:
+  &default-volumes
+    # Define all volumes you would like to have real-time mounted into the docker containers
+    volumes:
+      - .:/app:delegated ### Local overrides to mount host filesystem. Automatically removed in CI and PROD.
+
+x-user:
+  &default-user
+    # The default user under which the containers should run. Change this if you are on linux and run with another user than id `1000`
+    user: '1000'
+
+services:
+
+  cli: # cli container, will be used for executing composer and any local commands (drush, drupal, etc.)
+    build:
+      context: .
+      dockerfile: cli.dockerfile
+    << : *default-volumes # loads the defined volumes from the top
+    user: root
+    tty: true
+    volumes:
+        - ./:/app
+    environment:
+            AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+            AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+            AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
+
