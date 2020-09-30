@@ -18,10 +18,9 @@ services:
       context: .
       dockerfile: cli.dockerfile
     << : *default-volumes # loads the defined volumes from the top
+    image: sam_test:jenkinsbuild_${BUILD_NUMBER}
     user: root
     tty: true
-    volumes:
-        - ./:/app
     environment:
             AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
             AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
