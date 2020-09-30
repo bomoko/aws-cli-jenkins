@@ -17,7 +17,6 @@ services:
     build:
       context: .
       dockerfile: cli.dockerfile
-    << : *default-volumes # loads the defined volumes from the top
     image: sam_test:jenkinsbuild_${BUILD_NUMBER}
     user: root
     tty: true
