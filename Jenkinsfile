@@ -4,7 +4,7 @@ def label = "k8sagent-e2e"
 
 podTemplate(label: label,
       containers: [
-              containerTemplate(name: 'alpine', image: 'docker:dind', ttyEnabled: true, command: 'cat'),
+              containerTemplate(name: 'alpine', image: 'alpine', ttyEnabled: true, command: 'cat'),
       ],
       ) {
   node(label) {
@@ -23,43 +23,31 @@ podTemplate(label: label,
         stage('env') {
             container('alpine') {            
             sh '''
-              apk update \
-	      && apk --no-cache add git curl make python3 python3-dev gcc libc-dev libffi-dev py3-pip \
-              openssl-dev \
-	      && pip3 --no-cache-dir install --upgrade pip \
-	      && pip3 --no-cache-dir install docker-compose==1.24.1 \
-	      && rm -f /var/cache/apk/* \
-	      && rm -rf /root/.cache
+                apk add --update --no-cache --virtual .build-deps gcc musl-dev python3 python3-dev nodejs-current npm yarn && ln -sf python3 /usr/bin/python
+                python3 -m ensurepip
+                pip3 install --no-cache --upgrade pip setuptools
+                pip install --ignore-installed aws-sam-cli
             '''
             }
         }          
-        stage('Build Container') {
-            container('alpine') {
-            sh '''
-                docker-compose -f docker-compose.jenkins.yml down -v --rmi all
-                docker-compose -f docker-compose.jenkins.yml build
-                docker-compose -f docker-compose.jenkins.yml up -d
-            '''
-            }
-        }
         stage('SAM Build') {
             container('alpine') {
             sh '''
-                docker-compose -f docker-compose.jenkins.yml  exec -T cli bash -c "/app/jenkins/build.sh"
+                echo "build"
             '''
             }
         }        
         stage('Run tests') {
             container('alpine') {
             sh '''
-                docker-compose -f docker-compose.jenkins.yml  exec -T cli bash -c "/app/jenkins/test.sh"
+                echo "test"
             '''
             }
         }
         stage('Deploy SAM') {
             container('alpine') {
             sh '''
-                docker-compose -f docker-compose.jenkins.yml  exec -T cli bash -c "/app/jenkins/deploy.sh"
+                echo "Deploy"
             '''
             }
         }
@@ -69,7 +57,7 @@ podTemplate(label: label,
       finally {
             container('alpine') {
             sh '''
-                docker-compose -f docker-compose.jenkins.yml down -v --rmi all
+                echo "something broke"
             '''
       }
     }
