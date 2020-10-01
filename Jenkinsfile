@@ -28,7 +28,7 @@ podTemplate(label: label,
             '''
             }
         }          
-        stage('Build') {
+        stage('Build Container') {
             container('alpine') {
             sh '''
                 docker-compose -f docker-compose.jenkins.yml down -v --rmi all
@@ -37,6 +37,13 @@ podTemplate(label: label,
             '''
             }
         }
+        stage('SAM Build') {
+            container('alpine') {
+            sh '''
+                docker-compose -f docker-compose.jenkins.yml  exec -T cli bash -c "/app/jenkins/build.sh"
+            '''
+            }
+        }        
         stage('Run tests') {
             container('alpine') {
             sh '''

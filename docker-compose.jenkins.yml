@@ -17,7 +17,7 @@ services:
     build:
       context: .
       dockerfile: cli.dockerfile
-    image: sam_test:jenkinsbuild_${BUILD_NUMBER}
+    image: sam_test
     user: root
     tty: true
     environment:
