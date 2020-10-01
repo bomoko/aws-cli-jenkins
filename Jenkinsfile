@@ -34,7 +34,7 @@ podTemplate(label: label,
         stage('SAM Build') {
             container('alpine') {
             sh '''
-                echo "build"
+                sam build
             '''
             }
         }        
@@ -48,7 +48,7 @@ podTemplate(label: label,
         stage('Deploy SAM') {
             container('alpine') {
             sh '''
-                echo "Deploy"
+                sam deploy --no-confirm-changeset
             '''
             }
         }
