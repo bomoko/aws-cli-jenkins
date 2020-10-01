@@ -9,6 +9,11 @@ podTemplate(label: label,
       ) {
   node(label) {
    withEnv(['DOCKER_HOST=tcp://docker-host.lagoon.svc:2375']) {
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('jenkins-aws-secret-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-secret-access-key')
+        AWS_DEFAULT_REGION = 'eu-west-2'
+    }
     try {
         stage('Init') {
             timeout(time: 3, unit: 'MINUTES') {
