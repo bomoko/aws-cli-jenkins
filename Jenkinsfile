@@ -41,11 +41,17 @@ podTemplate(label: label,
         }
         stage('Build and deploy') {
             container('alpine') {
+            def isStartedByUser = currentBuild.rawBuild.getCause(hudson.model.Cause$UserIdCause) != null
             if (env.BRANCH_NAME ==~ /(dev|master)/) {
                 sh '''
                     echo "I'm running"
                 '''
                 }
+            if(isStartedByUser) {
+                sh '''
+                    echo "was started by user"
+                '''
+            }
             }
         }
     } catch(exc) {
