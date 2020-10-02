@@ -23,36 +23,36 @@ podTemplate(label: label,
         }
         stage('Environment Setup') {
             container('alpine') {            
+            sh '''
+                apk add --update --no-cache --virtual .build-deps gcc musl-dev alpine-sdk python3 python3-dev nodejs-current npm yarn && ln -sf python3 /usr/bin/python
+                python3 -m ensurepip
+                pip3 install --no-cache --upgrade pip setuptools
+                pip install --ignore-installed aws-sam-cli
+            '''
             }
         }
         stage('Yarn Build') {
             container('alpine') {
             sh '''
-            echo "build"
+                yarn install
+                yarn build
             '''
             }
         }          
         stage('Run tests') {
             container('alpine') {
             sh '''
-                echo "tests"
+                yarn lint
             '''
             }
         }
         stage('Build and deploy') {
             container('alpine') {
-            when {
-                anyOf{
-                    branch 'master';
-                    branch 'staging'
+            if (env.BRANCH_NAME ==~ /(dev|master)/) {
+                sh '''
+                    echo "I'm running"
+                '''
                 }
-            }
-            steps {
-            sh '''
-               echo "should only run for master and/or staging" 
-            '''
-            }
-
             }
         }
     } catch(exc) {
