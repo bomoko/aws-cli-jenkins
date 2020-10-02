@@ -21,35 +21,38 @@ podTemplate(label: label,
                 checkout scm
             }
         }
-        stage('env') {
+        stage('Environment Setup') {
             container('alpine') {            
+            }
+        }
+        stage('Yarn Build') {
+            container('alpine') {
             sh '''
-                apk add --update --no-cache --virtual .build-deps gcc musl-dev python3 python3-dev nodejs-current npm yarn && ln -sf python3 /usr/bin/python
-                python3 -m ensurepip
-                pip3 install --no-cache --upgrade pip setuptools
-                pip install --ignore-installed aws-sam-cli
+            echo "build"
             '''
             }
         }          
-        stage('SAM Build') {
-            container('alpine') {
-            sh '''
-                sam build
-            '''
-            }
-        }        
         stage('Run tests') {
             container('alpine') {
             sh '''
-                echo "test"
+                echo "tests"
             '''
             }
         }
-        stage('Deploy SAM') {
+        stage('Build and deploy') {
             container('alpine') {
+            when {
+                anyOf{
+                    branch 'master';
+                    branch 'staging'
+                }
+            }
+            steps {
             sh '''
-                sam deploy --no-confirm-changeset
+               echo "should only run for master and/or staging" 
             '''
+            }
+
             }
         }
     } catch(exc) {
